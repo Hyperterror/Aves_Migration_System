@@ -1,0 +1,37 @@
+DATA SUMMARY
+--------------------------------------------------
+Shape: (10000, 42)
+Columns: ['Bird_ID', 'Species', 'Region', 'Habitat', 'Weather_Condition', 'Migration_Reason', 'Start_Latitude', 'Start_Longitude', 'End_Latitude', 'End_Longitude', 'Flight_Distance_km', 'Flight_Duration_hours', 'Average_Speed_kmph', 'Max_Altitude_m', 'Min_Altitude_m', 'Temperature_C', 'Wind_Speed_kmph', 'Humidity_%', 'Pressure_hPa', 'Visibility_km', 'Nesting_Success', 'Tag_Battery_Level_%', 'Signal_Strength_dB', 'Migration_Start_Month', 'Migration_End_Month', 'Rest_Stops', 'Predator_Sightings', 'Tag_Type', 'Migrated_in_Flock', 'Flock_Size', 'Food_Supply_Level', 'Tracking_Quality', 'Migration_Interrupted', 'Interrupted_Reason', 'Tagged_By', 'Tag_Weight_g', 'Migration_Success', 'Recovery_Location_Known', 'Recovery_Time_days', 'Observation_Counts', 'Observation_Quality', 'Origin']
+
+CORRELATIONS WITH TARGET (Numeric features)
+--------------------------------------------------
+Rest_Stops               : -0.0267
+Min_Altitude_m           : 0.0208
+Tag_Battery_Level_%      : 0.0183
+Start_Longitude          : 0.0163
+Max_Altitude_m           : -0.0150
+Flight_Distance_km       : -0.0150
+Tag_Weight_g             : -0.0094
+End_Longitude            : 0.0089
+Humidity_%               : 0.0083
+Observation_Counts       : -0.0063
+Predator_Sightings       : -0.0063
+Flight_Duration_hours    : 0.0045
+Flock_Size               : -0.0042
+Average_Speed_kmph       : -0.0039
+Signal_Strength_dB       : 0.0028
+Visibility_km            : 0.0020
+Temperature_C            : -0.0010
+Start_Latitude           : -0.0008
+End_Latitude             : -0.0006
+Wind_Speed_kmph          : -0.0005
+Pressure_hPa             : -0.0005
+Recovery_Time_days       : -0.0004
+
+
+TARGET DISTRIBUTION
+--------------------------------------------------
+Migration_Success
+Successful    5094
+Failed        4906
+
