@@ -324,6 +324,11 @@ def run_cross_validation(X, y, sample_weights, n_folds=N_FOLDS):
 
             mod_clone.fit(X_train_sm, y_train_sm, **fit_kwargs)
             y_pred = mod_clone.predict(X_test_sc)
+            y_prob = (
+                mod_clone.predict_proba(X_test_sc)[:, 1]
+                if hasattr(mod_clone, "predict_proba")
+                else None
+            )
 
             kw = {"zero_division": 0}
             metrics = {
@@ -334,6 +339,7 @@ def run_cross_validation(X, y, sample_weights, n_folds=N_FOLDS):
                 "f1":        f1_score(y_test_f, y_pred, **kw),
                 "y_test":    y_test_f.values,
                 "y_pred":    y_pred,
+                "y_prob":    y_prob,
                 "cm":        confusion_matrix(y_test_f, y_pred, labels=[0, 1]),
             }
             fold_results[name].append(metrics)
@@ -520,7 +526,353 @@ def plot_f1_boxplot(fold_results):
 
 
 # ================================================================
-# STEP 8 — SAVE REPORTS
+# STEP 8 — ADDITIONAL VISUALISATIONS (mirrors telemetry_model_training.py)
+# ================================================================
+
+def plot_confusion_matrices(fold_results):
+    """
+    Aggregate confusion matrices across all CV folds per model and
+    display as a grid — mirrors create_confusion_matrices() in
+    telemetry_model_training.py.
+    """
+    from sklearn.metrics import roc_curve, auc   # lazy import to keep top clean
+    model_names = list(fold_results.keys())
+    n_models = len(model_names)
+    cols = 3
+    rows = (n_models + cols - 1) // cols
+
+    fig, axes = plt.subplots(rows, cols, figsize=(15, 5 * rows))
+    axes = axes.flatten()
+
+    for idx, name in enumerate(model_names):
+        # Sum CMs across folds
+        cm = np.zeros((2, 2), dtype=int)
+        for fold in fold_results[name]:
+            cm += fold["cm"]
+
+        im = axes[idx].imshow(cm, cmap="Blues")
+        axes[idx].set_xticks([0, 1])
+        axes[idx].set_yticks([0, 1])
+        axes[idx].set_xticklabels(["Failed", "Success"])
+        axes[idx].set_yticklabels(["Failed", "Success"])
+        axes[idx].set_xlabel("Predicted")
+        axes[idx].set_ylabel("Actual")
+        axes[idx].set_title(name, fontsize=12, fontweight="bold")
+
+        for i in range(2):
+            for j in range(2):
+                axes[idx].text(
+                    j, i, str(cm[i, j]),
+                    ha="center", va="center",
+                    fontsize=16, fontweight="bold",
+                    color="white" if cm[i, j] > cm.max() / 2 else "black",
+                )
+
+        total = cm.sum()
+        accuracy = (cm[0, 0] + cm[1, 1]) / total if total > 0 else 0
+        axes[idx].text(
+            0.5, -0.15, f"Accuracy (pooled): {accuracy:.2%}",
+            transform=axes[idx].transAxes,
+            ha="center", fontsize=10,
+        )
+
+    for idx in range(n_models, len(axes)):
+        axes[idx].axis("off")
+
+    plt.suptitle(
+        "Confusion Matrices — All Models (Bias-Corrected, Pooled CV Folds)",
+        fontsize=14, fontweight="bold", y=1.02,
+    )
+    plt.tight_layout()
+    path = os.path.join(OUTPUT_DIR, "bias_confusion_matrices.png")
+    plt.savefig(path, dpi=150, bbox_inches="tight")
+    plt.close()
+    print(f"Saved: {path}")
+
+
+def plot_roc_curves(fold_results):
+    """
+    Pool y_test / y_prob across all CV folds and draw one ROC curve per
+    model — mirrors create_roc_curves() in telemetry_model_training.py.
+    """
+    from sklearn.metrics import roc_curve, auc
+    fig, ax = plt.subplots(figsize=(10, 8))
+
+    for name, folds in fold_results.items():
+        y_test_all = np.concatenate([f["y_test"] for f in folds])
+        probs = [f["y_prob"] for f in folds if f["y_prob"] is not None]
+        if not probs:
+            continue
+        y_prob_all = np.concatenate(probs)
+        fpr, tpr, _ = roc_curve(y_test_all, y_prob_all)
+        roc_auc = auc(fpr, tpr)
+        ax.plot(fpr, tpr, linewidth=2, label=f"{name} (AUC = {roc_auc:.3f})")
+
+    ax.plot([0, 1], [0, 1], "k--", linewidth=1, label="Random Classifier")
+    ax.set_xlabel("False Positive Rate", fontsize=12)
+    ax.set_ylabel("True Positive Rate", fontsize=12)
+    ax.set_title(
+        "ROC Curves — All Models (Bias-Corrected, Pooled CV Folds)",
+        fontsize=14, fontweight="bold",
+    )
+    ax.legend(loc="lower right")
+    ax.grid(alpha=0.3)
+
+    plt.tight_layout()
+    path = os.path.join(OUTPUT_DIR, "bias_roc_curves.png")
+    plt.savefig(path, dpi=150, bbox_inches="tight")
+    plt.close()
+    print(f"Saved: {path}")
+
+
+def plot_precision_recall_curves(fold_results):
+    """
+    Pool y_test / y_prob across CV folds and draw one PR curve per model
+    — mirrors create_precision_recall_curves() in telemetry_model_training.py.
+    """
+    from sklearn.metrics import precision_recall_curve
+    fig, ax = plt.subplots(figsize=(10, 8))
+
+    for name, folds in fold_results.items():
+        y_test_all = np.concatenate([f["y_test"] for f in folds])
+        probs = [f["y_prob"] for f in folds if f["y_prob"] is not None]
+        if not probs:
+            continue
+        y_prob_all = np.concatenate(probs)
+        precision, recall, _ = precision_recall_curve(y_test_all, y_prob_all)
+        ax.plot(recall, precision, linewidth=2, label=name)
+
+    ax.set_xlabel("Recall", fontsize=12)
+    ax.set_ylabel("Precision", fontsize=12)
+    ax.set_title(
+        "Precision-Recall Curves — All Models (Bias-Corrected, Pooled CV Folds)",
+        fontsize=14, fontweight="bold",
+    )
+    ax.legend(loc="upper right")
+    ax.grid(alpha=0.3)
+    ax.set_xlim([0, 1])
+    ax.set_ylim([0, 1])
+
+    plt.tight_layout()
+    path = os.path.join(OUTPUT_DIR, "bias_precision_recall_curves.png")
+    plt.savefig(path, dpi=150, bbox_inches="tight")
+    plt.close()
+    print(f"Saved: {path}")
+
+
+def plot_accuracy_ranking(summary_df):
+    """
+    Horizontal bar chart of mean accuracy per model, sorted ascending
+    — mirrors create_model_accuracy_ranking() in telemetry_model_training.py.
+    """
+    model_names = summary_df["Model"].tolist()
+    accuracies  = summary_df["Accuracy_mean"].tolist()
+
+    sorted_idx   = np.argsort(accuracies)
+    sorted_names = [model_names[i] for i in sorted_idx]
+    sorted_acc   = [accuracies[i]  for i in sorted_idx]
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    colors = plt.cm.RdYlGn(np.linspace(0.3, 0.9, len(sorted_names)))
+    bars   = ax.barh(sorted_names, sorted_acc, color=colors)
+
+    for bar, acc in zip(bars, sorted_acc):
+        ax.text(
+            acc + 0.005, bar.get_y() + bar.get_height() / 2,
+            f"{acc:.4f}", va="center", fontsize=11,
+        )
+
+    ax.set_xlabel("Accuracy (CV mean)", fontsize=12)
+    ax.set_title(
+        "Model Ranking by Accuracy — Bias-Corrected Telemetry Data",
+        fontsize=14, fontweight="bold",
+    )
+    ax.set_xlim(0, max(sorted_acc) * 1.15 if sorted_acc else 1)
+    ax.grid(axis="x", alpha=0.3)
+
+    plt.tight_layout()
+    path = os.path.join(OUTPUT_DIR, "bias_accuracy_ranking.png")
+    plt.savefig(path, dpi=150, bbox_inches="tight")
+    plt.close()
+    print(f"Saved: {path}")
+
+
+def plot_f1_comparison(summary_df):
+    """
+    Bar chart of mean F1 Score per model with ±std error bars —
+    one centered bar per model, cleanly labeled.
+    """
+    model_names = summary_df["Model"].tolist()
+    f1_means    = summary_df["F1_mean"].tolist()
+    f1_stds     = summary_df["F1_std"].tolist()
+
+    x     = np.arange(len(model_names))
+    width = 0.5
+    fig, ax = plt.subplots(figsize=(12, 6))
+
+    colors = ["#3498db", "#9b59b6", "#2ecc71", "#e67e22", "#1b5e20", "#e74c3c"]
+    bars = ax.bar(
+        x, f1_means, width,
+        color=colors[:len(model_names)],
+        yerr=f1_stds,
+        error_kw={"elinewidth": 1.8, "capsize": 6},
+        label="F1 Score (mean ± std)",
+    )
+
+    for bar, mean, std in zip(bars, f1_means, f1_stds):
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            bar.get_height() + std + 0.012,
+            f"{mean:.3f}",
+            ha="center", va="bottom", fontsize=10, fontweight="bold",
+        )
+
+    ax.set_xlabel("Model", fontsize=12)
+    ax.set_ylabel("F1 Score (CV mean ± std)", fontsize=12)
+    ax.set_title(
+        "F1 Score Comparison — Bias-Corrected Telemetry Data",
+        fontsize=14, fontweight="bold",
+    )
+    ax.set_xticks(x)
+    ax.set_xticklabels(model_names, rotation=15, ha="right", fontsize=11)
+    ax.set_ylim(0, 1.15)
+    ax.axhline(0.9, color="gray", linestyle="--", linewidth=1, label="0.90 reference")
+    ax.legend(fontsize=10)
+    ax.grid(axis="y", alpha=0.3)
+
+    plt.tight_layout()
+    path = os.path.join(OUTPUT_DIR, "bias_f1_comparison.png")
+    plt.savefig(path, dpi=150, bbox_inches="tight")
+    plt.close()
+    print(f"Saved: {path}")
+
+
+def plot_feature_importance(X, y, sample_weights, feature_names):
+    """
+    Train Decision Tree and Random Forest on the full re-labeled dataset
+    (with SMOTE if available) and plot their feature importances side-by-side
+    — mirrors create_feature_importance_plot() in telemetry_model_training.py.
+    """
+    from sklearn.preprocessing import StandardScaler
+
+    # Scale features
+    scaler   = StandardScaler()
+    X_scaled = pd.DataFrame(scaler.fit_transform(X), columns=feature_names)
+
+    # Apply SMOTE if available
+    X_fit, y_fit = X_scaled, y
+    if SMOTE_AVAILABLE and y.nunique() >= 2:
+        minority_count = int(y.value_counts().min())
+        k_neighbors    = max(1, min(5, minority_count - 1))
+        try:
+            smote = SMOTE(random_state=42, k_neighbors=k_neighbors,
+                          sampling_strategy="minority")
+            X_sm, y_sm = smote.fit_resample(X_scaled, y)
+            X_fit = pd.DataFrame(X_sm, columns=feature_names)
+            y_fit = y_sm
+        except Exception:
+            pass
+
+    tree_models = {
+        "Decision Tree": DecisionTreeClassifier(
+            random_state=42, max_depth=4, class_weight="balanced"
+        ),
+        "Random Forest": RandomForestClassifier(
+            n_estimators=100, random_state=42, max_depth=6,
+            class_weight="balanced"
+        ),
+    }
+
+    fitted = {}
+    for name, model in tree_models.items():
+        model.fit(X_fit, y_fit)
+        fitted[name] = model
+
+    n_plots = len(fitted)
+    fig, axes = plt.subplots(1, n_plots, figsize=(10 * n_plots, 8))
+    if n_plots == 1:
+        axes = [axes]
+
+    for ax, (name, model) in zip(axes, fitted.items()):
+        importances = model.feature_importances_
+        sorted_idx  = np.argsort(importances)[-20:]
+        top_names   = [feature_names[i] for i in sorted_idx]
+        top_values  = importances[sorted_idx]
+
+        colors = plt.cm.viridis(top_values / top_values.max())
+        ax.barh(top_names, top_values, color=colors)
+        ax.set_xlabel("Feature Importance (Gini)", fontsize=11)
+        ax.set_title(f"{name} — Top 20 Features", fontsize=12, fontweight="bold")
+        ax.grid(axis="x", alpha=0.3)
+
+    plt.suptitle(
+        "Feature Importances — Bias-Corrected Telemetry Data",
+        fontsize=14, fontweight="bold", y=1.02,
+    )
+    plt.tight_layout()
+    path = os.path.join(OUTPUT_DIR, "bias_feature_importance.png")
+    plt.savefig(path, dpi=150, bbox_inches="tight")
+    plt.close()
+    print(f"Saved: {path}")
+
+
+def plot_xgboost_importance(X, y, feature_names):
+    """
+    Train XGBoost on the full re-labeled dataset and plot its top-20
+    feature importances — mirrors create_xgboost_importance_plot() in
+    telemetry_model_training.py.
+    """
+    if not XGBOOST_AVAILABLE:
+        return
+    from sklearn.preprocessing import StandardScaler
+
+    scaler   = StandardScaler()
+    X_scaled = pd.DataFrame(scaler.fit_transform(X), columns=feature_names)
+
+    X_fit, y_fit = X_scaled, y
+    if SMOTE_AVAILABLE and y.nunique() >= 2:
+        minority_count = int(y.value_counts().min())
+        k_neighbors    = max(1, min(5, minority_count - 1))
+        try:
+            smote = SMOTE(random_state=42, k_neighbors=k_neighbors,
+                          sampling_strategy="minority")
+            X_sm, y_sm = smote.fit_resample(X_scaled, y)
+            X_fit = pd.DataFrame(X_sm, columns=feature_names)
+            y_fit = y_sm
+        except Exception:
+            pass
+
+    model = XGBClassifier(
+        n_estimators=100, random_state=42,
+        eval_metric="logloss", verbosity=0,
+        scale_pos_weight=13,
+    )
+    model.fit(X_fit, y_fit)
+
+    importances = model.feature_importances_
+    sorted_idx  = np.argsort(importances)[-20:]
+    top_names   = [feature_names[i] for i in sorted_idx]
+    top_values  = importances[sorted_idx]
+
+    fig, ax = plt.subplots(figsize=(10, 8))
+    colors = plt.cm.plasma(top_values / top_values.max())
+    ax.barh(top_names, top_values, color=colors)
+    ax.set_xlabel("Feature Importance (F-score)", fontsize=11)
+    ax.set_title(
+        "XGBoost — Top 20 Feature Importances (Bias-Corrected Telemetry)",
+        fontsize=13, fontweight="bold",
+    )
+    ax.grid(axis="x", alpha=0.3)
+
+    plt.tight_layout()
+    path = os.path.join(OUTPUT_DIR, "bias_feature_importance_xgb.png")
+    plt.savefig(path, dpi=150, bbox_inches="tight")
+    plt.close()
+    print(f"Saved: {path}")
+
+
+# ================================================================
+# STEP 9 — SAVE REPORTS
 # ================================================================
 
 def save_per_fold_csv(fold_results, summary_df):
@@ -719,6 +1071,14 @@ def main():
     plot_class_distribution(before_df, after_df)
     plot_cv_comparison(summary_df)
     plot_f1_boxplot(fold_results)
+    plot_confusion_matrices(fold_results)
+    plot_roc_curves(fold_results)
+    plot_precision_recall_curves(fold_results)
+    plot_accuracy_ranking(summary_df)
+    plot_f1_comparison(summary_df)
+    feature_names = list(X.columns)
+    plot_feature_importance(X, y, sample_weights, feature_names)
+    plot_xgboost_importance(X, y, feature_names)
 
     # ---- Save reports ----
     save_per_fold_csv(fold_results, summary_df)

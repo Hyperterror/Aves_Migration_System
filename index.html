@@ -280,7 +280,7 @@
       <div class="h-stat"><span class="val" data-target="4808057">0</span><span class="lbl">GPS Fixes</span></div>
       <div class="h-stat"><span class="val" data-target="22">0</span><span class="lbl">Tagged Birds</span></div>
       <div class="h-stat"><span class="val" data-target="42">0</span><span class="lbl">ML Features</span></div>
-      <div class="h-stat"><span class="val" data-target="96.7" data-suffix="%">0</span><span class="lbl">Best Accuracy</span></div>
+      <div class="h-stat"><span class="val" data-target="94.7" data-suffix="%">0</span><span class="lbl">Best Accuracy</span></div>
     </div>
   </div>
   <!-- SVG egret shape -->
@@ -311,7 +311,7 @@
     <div class="stat-card"><div class="icon">📅</div><div class="num">2017–2026</div><div class="label">Tracking Duration</div></div>
     <div class="stat-card"><div class="icon">🔬</div><div class="num">48</div><div class="label">Raw Sensor Columns</div></div>
     <div class="stat-card"><div class="icon">⚙️</div><div class="num">42</div><div class="label">Engineered Features</div></div>
-    <div class="stat-card"><div class="icon">🗺️</div><div class="num">29</div><div class="label">Migration Events</div></div>
+    <div class="stat-card"><div class="icon">🗺️</div><div class="num">38</div><div class="label">Migration Events</div></div>
     <div class="stat-card"><div class="icon">⏱️</div><div class="num">30 min</div><div class="label">Fix Interval</div></div>
     <div class="stat-card"><div class="icon">🌡️</div><div class="num">7</div><div class="label">Sensor Types</div></div>
   </div>
@@ -404,7 +404,7 @@
           <div class="fix-num">3</div>
           <div class="fix-info">
             <h4>Per-Bird Sample Weights</h4>
-            <p>GREG_5 contributed 52% of all events. Weight = 1/events_per_bird so each bird contributes equally regardless of tracking duration.</p>
+            <p>GREG_8 contributed 47% of all events (18/38). Weight = 1/events_per_bird so each bird contributes equally regardless of tracking duration.</p>
           </div>
         </li>
         <li>
@@ -424,27 +424,27 @@
           <h4>❌ Before</h4>
           <div class="class-bar">
             <span class="cls-label" style="color:var(--green)">Success</span>
-            <div class="cls-fill" style="width:90%;background:rgba(0,230,118,.3);color:var(--green)">27</div>
+            <div class="cls-fill" style="width:90%;background:rgba(0,230,118,.3);color:var(--green)">36</div>
           </div>
           <div class="class-bar">
             <span class="cls-label" style="color:var(--red)">Failed</span>
             <div class="cls-fill" style="width:12%;background:rgba(255,77,109,.3);color:var(--red)">2</div>
           </div>
-          <div style="margin-top:16px;font-size:.8rem;color:var(--muted)">Ratio: <strong style="color:var(--red)">13.5:1</strong></div>
+          <div style="margin-top:16px;font-size:.8rem;color:var(--muted)">Ratio: <strong style="color:var(--red)">18.0:1</strong></div>
           <div style="margin-top:8px;font-size:.8rem;color:var(--muted)">Accuracy: <strong style="color:var(--red)">100% (fake)</strong></div>
         </div>
         <div class="ba-box">
           <h4>✅ After</h4>
           <div class="class-bar">
             <span class="cls-label" style="color:var(--green)">Success</span>
-            <div class="cls-fill" style="width:90%;background:rgba(0,230,118,.3);color:var(--green)">26</div>
+            <div class="cls-fill" style="width:90%;background:rgba(0,230,118,.3);color:var(--green)">35</div>
           </div>
           <div class="class-bar">
             <span class="cls-label" style="color:var(--red)">Failed</span>
             <div class="cls-fill" style="width:20%;background:rgba(255,77,109,.3);color:var(--red)">3 + SMOTE</div>
           </div>
-          <div style="margin-top:16px;font-size:.8rem;color:var(--muted)">Ratio: <strong style="color:var(--green)">8.7:1</strong></div>
-          <div style="margin-top:8px;font-size:.8rem;color:var(--muted)">Accuracy: <strong style="color:var(--green)">96.7% (real)</strong></div>
+          <div style="margin-top:16px;font-size:.8rem;color:var(--muted)">Ratio: <strong style="color:var(--green)">11.7:1</strong></div>
+          <div style="margin-top:8px;font-size:.8rem;color:var(--muted)">Accuracy: <strong style="color:var(--green)">94.7% (real)</strong></div>
         </div>
       </div>
 
@@ -544,12 +544,12 @@
 // DATA
 // ═══════════════════════════════════════════
 const MODELS = [
-  {name:'Logistic Regression', acc:85.9, acc_std:5.8, prec:100.0, rec:84.3, f1:91.3, f1_std:4.0},
-  {name:'SVM',                 acc:93.3, acc_std:4.7, prec:93.3,  rec:100.0,f1:96.5, f1_std:2.5},
-  {name:'KNN',                 acc:83.0, acc_std:9.2, prec:100.0, rec:81.0, f1:89.2, f1_std:6.5},
-  {name:'Decision Tree',       acc:85.9, acc_std:5.8, prec:96.7,  rec:88.0, f1:91.5, f1_std:4.1},
-  {name:'Random Forest',       acc:96.7, acc_std:4.7, prec:96.7,  rec:100.0,f1:98.2, f1_std:2.5},
-  {name:'XGBoost',             acc:93.3, acc_std:4.7, prec:100.0, rec:92.6, f1:96.1, f1_std:2.8},
+  {name:'Logistic Regression', acc:92.1, acc_std:6.3, prec:100.0, rec:91.4, f1:95.4, f1_std:3.7},
+  {name:'SVM',                 acc:92.1, acc_std:0.3, prec:92.1,  rec:100.0,f1:95.9, f1_std:0.2},
+  {name:'KNN',                 acc:94.7, acc_std:3.8, prec:100.0, rec:94.2, f1:97.0, f1_std:2.2},
+  {name:'Decision Tree',       acc:89.5, acc_std:3.5, prec:97.2,  rec:91.7, f1:94.1, f1_std:2.2},
+  {name:'Random Forest',       acc:94.7, acc_std:3.8, prec:94.7,  rec:100.0,f1:97.2, f1_std:2.0},
+  {name:'XGBoost',             acc:92.1, acc_std:0.3, prec:94.7,  rec:97.2, f1:95.8, f1_std:0.2},
 ];
 
 const EVENTS = [
@@ -570,28 +570,28 @@ const EVENTS = [
 ];
 
 const BIRD_DATA = [
-  {id:'GREG_1', fixes:166593, events:2, maxDist:381, active:true},
-  {id:'GREG_2', fixes:107614, events:0, maxDist:0,   active:false},
-  {id:'GREG_3', fixes:104762, events:1, maxDist:155, active:true},
-  {id:'GREG_4', fixes:29645,  events:1, maxDist:437, active:true},
-  {id:'GREG_5', fixes:71964,  events:15,maxDist:58,  active:true},
-  {id:'GREG_6', fixes:122896, events:0, maxDist:0,   active:false},
-  {id:'GREG_7', fixes:46128,  events:0, maxDist:0,   active:false},
-  {id:'GREG_8', fixes:309346, events:1, maxDist:53,  active:true},
-  {id:'GREG_9', fixes:20502,  events:0, maxDist:0,   active:false},
-  {id:'GREG_10',fixes:670827, events:2, maxDist:1513,active:true},
-  {id:'GREG_11',fixes:126750, events:2, maxDist:103, active:true},
-  {id:'GREG_12',fixes:9203,   events:1, maxDist:156, active:true},
-  {id:'GREG_13',fixes:19217,  events:1, maxDist:141, active:true},
-  {id:'GREG_14',fixes:493,    events:0, maxDist:0,   active:false},
-  {id:'GREG_15',fixes:2373,   events:0, maxDist:0,   active:false},
-  {id:'GREG_16',fixes:4421,   events:0, maxDist:0,   active:false},
-  {id:'GREG_17',fixes:6117,   events:0, maxDist:0,   active:false},
-  {id:'GREG_18',fixes:5154,   events:0, maxDist:0,   active:false},
-  {id:'GREG_19',fixes:75,     events:0, maxDist:0,   active:false},
-  {id:'GREG_20',fixes:1015,   events:1, maxDist:68,  active:true},
-  {id:'GREG_21',fixes:771,    events:1, maxDist:166, active:true},
-  {id:'GREG_22',fixes:2672,   events:1, maxDist:63,  active:true},
+  {id:'GREG_1', fixes:166593, events:2,  maxDist:381,  active:true},
+  {id:'GREG_2', fixes:107614, events:0,  maxDist:0,    active:false},
+  {id:'GREG_3', fixes:104762, events:1,  maxDist:155,  active:true},
+  {id:'GREG_4', fixes:29645,  events:1,  maxDist:437,  active:true},
+  {id:'GREG_5', fixes:71964,  events:2,  maxDist:58,   active:true},
+  {id:'GREG_6', fixes:122896, events:1,  maxDist:45,   active:true},
+  {id:'GREG_7', fixes:46128,  events:0,  maxDist:0,    active:false},
+  {id:'GREG_8', fixes:309346, events:18, maxDist:53,   active:true},
+  {id:'GREG_9', fixes:20502,  events:0,  maxDist:0,    active:false},
+  {id:'GREG_10',fixes:670827, events:2,  maxDist:1513, active:true},
+  {id:'GREG_11',fixes:126750, events:3,  maxDist:103,  active:true},
+  {id:'GREG_12',fixes:9203,   events:1,  maxDist:156,  active:true},
+  {id:'GREG_13',fixes:19217,  events:1,  maxDist:141,  active:true},
+  {id:'GREG_14',fixes:493,    events:0,  maxDist:0,    active:false},
+  {id:'GREG_15',fixes:2373,   events:0,  maxDist:0,    active:false},
+  {id:'GREG_16',fixes:4421,   events:0,  maxDist:0,    active:false},
+  {id:'GREG_17',fixes:6117,   events:1,  maxDist:38,   active:true},
+  {id:'GREG_18',fixes:5154,   events:2,  maxDist:42,   active:true},
+  {id:'GREG_19',fixes:75,     events:0,  maxDist:0,    active:false},
+  {id:'GREG_20',fixes:1015,   events:1,  maxDist:68,   active:true},
+  {id:'GREG_21',fixes:771,    events:1,  maxDist:166,  active:true},
+  {id:'GREG_22',fixes:2672,   events:1,  maxDist:63,   active:true},
 ];
 
 const BUCKETS = [
@@ -850,7 +850,7 @@ function showBird(bird, btn){
       responsive:true, plugins:{legend:{labels:{color:'#e8f0ff',font:{family:'Inter'}}}},
       scales:{
         x:{ticks:{color:'#7a92b8',font:{family:'Inter'}},grid:{color:'rgba(26,50,88,.4)'}},
-        y:{min:70,max:105,ticks:{color:'#7a92b8',font:{family:'Inter'},callback:v=>v+'%'},grid:{color:'rgba(26,50,88,.4)'},
+        y:{min:0,max:105,ticks:{color:'#7a92b8',font:{family:'Inter'},callback:v=>v+'%'},grid:{color:'rgba(26,50,88,.4)'},
            title:{display:true,text:'Score (%)',color:'#7a92b8'}}
       }
     }

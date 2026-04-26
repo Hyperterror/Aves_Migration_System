@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aves Migration Prediction – Research Poster</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & base ───────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f0f4f8;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .poster {
+      width: 1122px;          /* ~A0 landscape ratio at screen scale */
+      background: #ffffff;
+      border: 3px solid #1a3a5c;
+      box-shadow: 0 8px 32px rgba(0,0,0,.25);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ─────────────────────────────────────────────────── */
+    .header {
+      background: linear-gradient(135deg, #1a3a5c 0%, #0e5c8a 60%, #1a8a6f 100%);
+      color: #fff;
+      padding: 18px 28px 14px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .header-bird-icon {
+      font-size: 52px;
+      flex-shrink: 0;
+    }
+
+    .header-text { flex: 1; }
+
+    .header h1 {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: .5px;
+      line-height: 1.15;
+    }
+
+    .header-meta {
+      margin-top: 6px;
+      font-size: 12.5px;
+      opacity: .88;
+      display: flex;
+      gap: 24px;
+    }
+
+    .header-meta span { display: flex; align-items: center; gap: 5px; }
+
+    .badge-strip {
+      background: rgba(255,255,255,.12);
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 11.5px;
+      text-align: center;
+      line-height: 1.6;
+      flex-shrink: 0;
+    }
+
+    /* ── Body grid ──────────────────────────────────────────────── */
+    .body {
+      display: grid;
+      grid-template-columns: 230px 1fr 270px;
+      gap: 0;
+      flex: 1;
+    }
+
+    /* ── Column styles ──────────────────────────────────────────── */
+    .col { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+    .col-left  { border-right: 2px solid #e0e8f0; }
+    .col-right { border-left:  2px solid #e0e8f0; }
+
+    /* ── Card ────────────────────────────────────────────────────── */
+    .card {
+      border-radius: 8px;
+      border: 1.5px solid #d0daea;
+      overflow: hidden;
+    }
+
+    .card-header {
+      background: #1a3a5c;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .4px;
+      padding: 6px 10px;
+    }
+
+    .card-header.teal  { background: #0e7a66; }
+    .card-header.blue  { background: #1565c0; }
+    .card-header.slate { background: #37474f; }
+
+    .card-body {
+      padding: 9px 10px;
+      font-size: 11.5px;
+      color: #2c3e50;
+      line-height: 1.55;
+    }
+
+    /* ── Bullet lists ────────────────────────────────────────────── */
+    .bullet-list { list-style: none; }
+    .bullet-list li { display: flex; align-items: flex-start; gap: 6px; margin-bottom: 4px; }
+    .bullet-list li::before {
+      content: '●';
+      color: #e74c3c;
+      font-size: 9px;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+    .bullet-list.green li::before { color: #27ae60; }
+    .bullet-list.blue  li::before { color: #2980b9; }
+
+    /* ── Stat grid ───────────────────────────────────────────────── */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .stat-box {
+      background: #eaf2fb;
+      border-radius: 6px;
+      padding: 6px 8px;
+      text-align: center;
+    }
+    .stat-box .num { font-size: 18px; font-weight: 800; color: #1a3a5c; }
+    .stat-box .lbl { font-size: 9.5px; color: #5d6d7e; margin-top: 1px; }
+
+    /* ── Pipeline arrows ─────────────────────────────────────────── */
+    .pipeline {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      flex-wrap: wrap;
+      row-gap: 6px;
+    }
+    .pipe-step {
+      background: #1a3a5c;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 5px 9px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .pipe-arrow {
+      font-size: 14px;
+      color: #7f8c8d;
+      padding: 0 3px;
+    }
+
+    /* ── Models compared ─────────────────────────────────────────── */
+    .model-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 5px;
+    }
+    .model-label {
+      color: #fff;
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 4px;
+      width: 120px;
+      flex-shrink: 0;
+    }
+    .model-desc {
+      font-size: 10.5px;
+      color: #2c3e50;
+    }
+
+    /* ── Results table ───────────────────────────────────────────── */
+    .results-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 10.5px;
+    }
+    .results-table th {
+      background: #1a3a5c;
+      color: #fff;
+      padding: 5px 6px;
+      text-align: center;
+    }
+    .results-table td {
+      padding: 4px 6px;
+      text-align: center;
+      border-bottom: 1px solid #e0e8f0;
+    }
+    .results-table tr:nth-child(even) td { background: #f4f8fd; }
+    .results-table .best { font-weight: 800; color: #0e7a66; }
+    .results-table .model-name { text-align: left; font-weight: 600; }
+
+    /* ── Donut-style class distribution ─────────────────────────── */
+    .donut-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 6px 0;
+    }
+
+    /* ── Feature importance mini-bar ─────────────────────────────── */
+    .feat-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    .feat-name { font-size: 10px; width: 120px; flex-shrink: 0; }
+    .feat-bar-bg { flex: 1; height: 10px; background: #e0e8f0; border-radius: 3px; }
+    .feat-bar { height: 100%; border-radius: 3px; background: #1a3a5c; }
+    .feat-val { font-size: 9.5px; color: #5d6d7e; width: 32px; text-align: right; }
+
+    /* ── Conclusion / future card highlight ─────────────────────── */
+    .highlight-box {
+      background: linear-gradient(135deg, #e8f5e9 0%, #e3f2fd 100%);
+      border-left: 4px solid #0e7a66;
+      border-radius: 4px;
+      padding: 8px 10px;
+      font-size: 11px;
+      color: #1a3a5c;
+      line-height: 1.5;
+    }
+
+    /* ── Mid-column sub-sections ─────────────────────────────────── */
+    .mid-top { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    /* ── SVG pie ──────────────────────────────────────────────────── */
+    .pie-legend {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      font-size: 10px;
+      margin-top: 4px;
+    }
+    .pie-legend-item { display: flex; align-items: center; gap: 4px; }
+    .pie-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── ROC mini chart ──────────────────────────────────────────── */
+    .roc-label {
+      font-size: 10px;
+      text-align: center;
+      color: #555;
+      margin-top: 4px;
+    }
+
+    /* ── Footer strip ─────────────────────────────────────────────── */
+    .footer {
+      background: #1a3a5c;
+      color: rgba(255,255,255,.75);
+      font-size: 10px;
+      text-align: center;
+      padding: 6px;
+      letter-spacing: .3px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="poster">
+
+  <!-- ══════════════════════ HEADER ══════════════════════ -->
+  <div class="header">
+    <div class="header-bird-icon">🦅</div>
+    <div class="header-text">
+      <h1>Aves Migration Prediction Using Machine Learning &amp; Bias Correction</h1>
+      <div class="header-meta">
+        <span>📍 Source: Audubon Canyon Ranch Egret Telemetry Dataset</span>
+        <span>🐦 Species: <em>Ardea alba</em> (Great Egret)</span>
+        <span>📅 Data: 2017 – 2021</span>
+      </div>
+    </div>
+    <div class="badge-strip">
+      Great Egret<br>Migration Analysis<br>
+      <strong>6 ML Models</strong><br>
+      GPS Telemetry
+    </div>
+  </div>
+
+  <!-- ══════════════════════ BODY ══════════════════════ -->
+  <div class="body">
+
+    <!-- ───────────── LEFT COLUMN ───────────── -->
+    <div class="col col-left">
+
+      <!-- Problem Statement -->
+      <div class="card">
+        <div class="card-header">🔎 Problem Statement</div>
+        <div class="card-body">
+          Accurately predicting bird migration success from GPS telemetry is
+          critical for conservation. Raw sensor data suffers from severe class
+          imbalance and a single dominant individual — preventing reliable
+          machine learning.
+        </div>
+      </div>
+
+      <!-- Motivation -->
+      <div class="card">
+        <div class="card-header">💡 Motivation</div>
+        <div class="card-body">
+          <ul class="bullet-list">
+            <li>Great Egrets are indicator species of wetland health.</li>
+            <li>Migration failure signals habitat loss or tag failure.</li>
+            <li>ML models can automate large-scale telemetry monitoring.</li>
+            <li>SMOTE + bias correction can rescue imbalanced wildlife datasets.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Dataset -->
+      <div class="card">
+        <div class="card-header">📊 Dataset</div>
+        <div class="card-body">
+          <ul class="bullet-list blue">
+            <li>Source: Audubon Canyon Ranch (ACR) Telemetry Project</li>
+            <li>Raw GPS fixes: ~4.8 million @ 30-min intervals</li>
+            <li>Individuals: 22 tagged egrets (GREG_1 – GREG_22)</li>
+            <li>Raw columns: 48 sensor channels</li>
+          </ul>
+          <div class="stat-grid">
+            <div class="stat-box"><div class="num">38</div><div class="lbl">Migration Events</div></div>
+            <div class="stat-box"><div class="num">35</div><div class="lbl">Eng. Features</div></div>
+            <div class="stat-box"><div class="num">22</div><div class="lbl">Tagged Birds</div></div>
+            <div class="stat-box"><div class="num">4.8M</div><div class="lbl">GPS Fixes</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bias Issues Found -->
+      <div class="card">
+        <div class="card-header teal">⚠️ Bias Issues Identified</div>
+        <div class="card-body">
+          <ul class="bullet-list">
+            <li><strong>18:1 class imbalance</strong> (Success vs Failed)</li>
+            <li>All 6 test samples were class-1 (trivial accuracy)</li>
+            <li>GREG_5 dominated: 15/29 events (52%) from one bird</li>
+            <li>100 km home-return threshold too generous → mislabeled events</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Key Insights -->
+      <div class="card">
+        <div class="card-header">🔑 Key Insights</div>
+        <div class="card-body">
+          <ul class="bullet-list green">
+            <li><strong>Duration &amp; displacement</strong> are top predictors.</li>
+            <li><strong>KNN &amp; Random Forest</strong> achieved highest F1 (0.972).</li>
+            <li>Bias correction improved minority-class recall significantly.</li>
+            <li>Stratified CV revealed true per-model variance.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div><!-- /col-left -->
+
+
+    <!-- ───────────── MIDDLE COLUMN ───────────── -->
+    <div class="col col-mid">
+
+      <!-- Methodology pipeline -->
+      <div class="card">
+        <div class="card-header blue" style="text-align:center;font-size:13px;">🔬 Methodology</div>
+        <div class="card-body">
+          <div class="pipeline">
+            <div class="pipe-step">1. Chunked Load<br><small style="font-weight:400">200k-row blocks</small></div>
+            <div class="pipe-arrow">▶</div>
+            <div class="pipe-step">2. GPS Cleaning<br><small style="font-weight:400">Filter &amp; outliers</small></div>
+            <div class="pipe-arrow">▶</div>
+            <div class="pipe-step">3. Event Detection<br><small style="font-weight:400">Haversine + state-machine</small></div>
+            <div class="pipe-arrow">▶</div>
+            <div class="pipe-step">4. Feature Eng.<br><small style="font-weight:400">35 aggregated features</small></div>
+            <div class="pipe-arrow">▶</div>
+            <div class="pipe-step">5. Bias Correction<br><small style="font-weight:400">SMOTE + re-labeling</small></div>
+            <div class="pipe-arrow">▶</div>
+            <div class="pipe-step">6. Model Training<br><small style="font-weight:400">Stratified 3-Fold CV</small></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Models compared + Bias Fixes side-by-side -->
+      <div class="mid-top">
+
+        <!-- Models -->
+        <div class="card">
+          <div class="card-header blue">📦 Models Compared</div>
+          <div class="card-body">
+            <div class="model-row">
+              <div class="model-label" style="background:#1565c0;">Logistic Regression</div>
+              <div class="model-desc">Linear baseline</div>
+            </div>
+            <div class="model-row">
+              <div class="model-label" style="background:#6a1b9a;">SVM (RBF)</div>
+              <div class="model-desc">Non-linear margin</div>
+            </div>
+            <div class="model-row">
+              <div class="model-label" style="background:#00695c;">KNN (k=3)</div>
+              <div class="model-desc">Distance-based</div>
+            </div>
+            <div class="model-row">
+              <div class="model-label" style="background:#e65100;">Decision Tree</div>
+              <div class="model-desc">Interpretable tree</div>
+            </div>
+            <div class="model-row">
+              <div class="model-label" style="background:#1b5e20;">Random Forest</div>
+              <div class="model-desc">Bagged ensemble</div>
+            </div>
+            <div class="model-row">
+              <div class="model-label" style="background:#b71c1c;">XGBoost</div>
+              <div class="model-desc">Gradient boosting</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bias Correction Strategy -->
+        <div class="card">
+          <div class="card-header teal">🛠 Bias Correction Strategy</div>
+          <div class="card-body">
+            <div class="model-row" style="margin-bottom:6px;">
+              <div class="model-label" style="background:#0e7a66;width:auto;padding:4px 7px;font-size:10px;">Fix 1</div>
+              <div class="model-desc">Stricter labeling: 100 km → 60 km home-return radius</div>
+            </div>
+            <div class="model-row" style="margin-bottom:6px;">
+              <div class="model-label" style="background:#0e7a66;width:auto;padding:4px 7px;font-size:10px;">Fix 2</div>
+              <div class="model-desc">SMOTE oversampling (training folds only)</div>
+            </div>
+            <div class="model-row" style="margin-bottom:6px;">
+              <div class="model-label" style="background:#0e7a66;width:auto;padding:4px 7px;font-size:10px;">Fix 3</div>
+              <div class="model-desc">Per-bird sample weights (downweight GREG_5)</div>
+            </div>
+            <div class="model-row">
+              <div class="model-label" style="background:#0e7a66;width:auto;padding:4px 7px;font-size:10px;">Fix 4</div>
+              <div class="model-desc">3-Fold Stratified Cross-Validation</div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /mid-top -->
+
+      <!-- Class distribution pie + Feature importances side by side -->
+      <div class="mid-top">
+
+        <!-- Class Distribution -->
+        <div class="card">
+          <div class="card-header">📈 Class Distribution (After Fix)</div>
+          <div class="card-body" style="text-align:center;">
+            <svg viewBox="0 0 160 130" width="170" height="130">
+              <!-- Donut centred: r=50, cx=80, cy=65 -->
+              <!-- Success slice: 35/38 ≈ 92% → 331.2° -->
+              <!-- Failed slice: 3/38 ≈ 8% → 28.8° -->
+
+              <!-- Success arc (large) -->
+              <circle cx="80" cy="65" r="50" fill="transparent"
+                stroke="#27ae60" stroke-width="28"
+                stroke-dasharray="287 314"
+                stroke-dashoffset="0"
+                transform="rotate(-90 80 65)" />
+              <!-- Failed arc (small) -->
+              <circle cx="80" cy="65" r="50" fill="transparent"
+                stroke="#e74c3c" stroke-width="28"
+                stroke-dasharray="27 314"
+                stroke-dashoffset="-287"
+                transform="rotate(-90 80 65)" />
+
+              <!-- Centre text -->
+              <text x="80" y="60" text-anchor="middle" font-size="11"
+                    font-weight="700" fill="#1a3a5c">38</text>
+              <text x="80" y="73" text-anchor="middle" font-size="8.5"
+                    fill="#5d6d7e">Events</text>
+
+              <!-- Labels -->
+              <text x="80" y="128" text-anchor="middle" font-size="9" fill="#222">After bias fix</text>
+            </svg>
+            <div class="pie-legend">
+              <div class="pie-legend-item">
+                <div class="pie-dot" style="background:#27ae60;"></div>
+                <span>Success 35 (92%)</span>
+              </div>
+              <div class="pie-legend-item">
+                <div class="pie-dot" style="background:#e74c3c;"></div>
+                <span>Failed 3 (8%)</span>
+              </div>
+            </div>
+            <div style="margin-top:6px;font-size:9.5px;color:#555;">
+              BEFORE: 18:1&nbsp;&nbsp;→&nbsp;&nbsp;AFTER: 11.7:1 ratio
+            </div>
+          </div>
+        </div>
+
+        <!-- Feature Importance (top 5) -->
+        <div class="card">
+          <div class="card-header">🌲 Top Features (Random Forest)</div>
+          <div class="card-body">
+            <div class="feat-row">
+              <div class="feat-name">duration_days</div>
+              <div class="feat-bar-bg"><div class="feat-bar" style="width:100%;background:#1a3a5c;"></div></div>
+              <div class="feat-val">0.18</div>
+            </div>
+            <div class="feat-row">
+              <div class="feat-name">displacement_km</div>
+              <div class="feat-bar-bg"><div class="feat-bar" style="width:88%;background:#1565c0;"></div></div>
+              <div class="feat-val">0.16</div>
+            </div>
+            <div class="feat-row">
+              <div class="feat-name">total_distance_km</div>
+              <div class="feat-bar-bg"><div class="feat-bar" style="width:77%;background:#0e7a66;"></div></div>
+              <div class="feat-val">0.14</div>
+            </div>
+            <div class="feat-row">
+              <div class="feat-name">avg_speed_ms</div>
+              <div class="feat-bar-bg"><div class="feat-bar" style="width:60%;background:#6a1b9a;"></div></div>
+              <div class="feat-val">0.11</div>
+            </div>
+            <div class="feat-row">
+              <div class="feat-name">max_dist_breeding</div>
+              <div class="feat-bar-bg"><div class="feat-bar" style="width:50%;background:#e65100;"></div></div>
+              <div class="feat-val">0.09</div>
+            </div>
+            <div class="feat-row">
+              <div class="feat-name">n_rest_stops</div>
+              <div class="feat-bar-bg"><div class="feat-bar" style="width:38%;background:#b71c1c;"></div></div>
+              <div class="feat-val">0.07</div>
+            </div>
+            <div class="feat-row">
+              <div class="feat-name">heading_consistency</div>
+              <div class="feat-bar-bg"><div class="feat-bar" style="width:28%;background:#37474f;"></div></div>
+              <div class="feat-val">0.05</div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /mid-top -->
+
+      <!-- Conclusion -->
+      <div class="card">
+        <div class="card-header teal" style="font-size:13px;text-align:center;">✅ Conclusion</div>
+        <div class="card-body">
+          <div class="highlight-box">
+            <strong>KNN &amp; Random Forest achieved the highest F1-Score (0.972)</strong> after bias correction,
+            confirming that ensemble/proximity-based methods handle small, imbalanced telemetry datasets best.
+            A 4-layer bias correction pipeline (strict labeling + SMOTE + per-bird weighting + Stratified CV)
+            transformed a naïve 100% accuracy (trivial) result into <strong>honest, generalizable performance</strong>,
+            reducing the class-imbalance ratio from 18:1 to 11.7:1 and exposing real model differences.
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /col-mid -->
+
+
+    <!-- ───────────── RIGHT COLUMN ───────────── -->
+    <div class="col col-right">
+
+      <!-- Results table -->
+      <div class="card">
+        <div class="card-header blue" style="text-align:center;">📋 Results &amp; Evaluation (3-Fold CV)</div>
+        <div class="card-body" style="padding:6px 4px;">
+          <table class="results-table">
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Acc</th>
+                <th>Prec</th>
+                <th>Recall</th>
+                <th>F1</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="model-name">Log. Reg.</td>
+                <td>92.1%</td>
+                <td>1.000</td>
+                <td>0.914</td>
+                <td>0.954</td>
+              </tr>
+              <tr>
+                <td class="model-name">SVM</td>
+                <td>92.1%</td>
+                <td>0.921</td>
+                <td>1.000</td>
+                <td>0.959</td>
+              </tr>
+              <tr>
+                <td class="model-name best">KNN</td>
+                <td class="best">94.7%</td>
+                <td class="best">1.000</td>
+                <td class="best">0.942</td>
+                <td class="best">0.970</td>
+              </tr>
+              <tr>
+                <td class="model-name">Dec. Tree</td>
+                <td>89.5%</td>
+                <td>0.972</td>
+                <td>0.917</td>
+                <td>0.941</td>
+              </tr>
+              <tr>
+                <td class="model-name best">Rand. Forest</td>
+                <td class="best">94.7%</td>
+                <td>0.947</td>
+                <td class="best">1.000</td>
+                <td class="best">0.972</td>
+              </tr>
+              <tr>
+                <td class="model-name">XGBoost</td>
+                <td>92.1%</td>
+                <td>0.947</td>
+                <td>0.972</td>
+                <td>0.958</td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="font-size:9px;color:#888;margin-top:4px;text-align:center;">
+            Values = mean across 3 stratified folds with SMOTE
+          </div>
+        </div>
+      </div>
+
+      <!-- Mini ROC-style performance chart (SVG) -->
+      <div class="card">
+        <div class="card-header blue">📉 F1-Score Comparison</div>
+        <div class="card-body" style="padding:8px 6px;">
+          <!-- Horizontal bar chart via inline SVG -->
+          <svg viewBox="0 0 240 148" width="100%" style="display:block;">
+            <!-- axes -->
+            <line x1="70" y1="4" x2="70" y2="138" stroke="#ccc" stroke-width="1"/>
+            <line x1="70" y1="138" x2="238" y2="138" stroke="#ccc" stroke-width="1"/>
+            <!-- grid lines every 0.25 (164px wide for 0–1) -->
+            <line x1="111" y1="4" x2="111" y2="138" stroke="#eee" stroke-width="1"/>
+            <line x1="152" y1="4" x2="152" y2="138" stroke="#eee" stroke-width="1"/>
+            <line x1="193" y1="4" x2="193" y2="138" stroke="#eee" stroke-width="1"/>
+            <text x="111" y="145" text-anchor="middle" font-size="7" fill="#999">0.25</text>
+            <text x="152" y="145" text-anchor="middle" font-size="7" fill="#999">0.50</text>
+            <text x="193" y="145" text-anchor="middle" font-size="7" fill="#999">0.75</text>
+            <text x="234" y="145" text-anchor="middle" font-size="7" fill="#999">1.0</text>
+
+            <!-- Bar: Log Reg  F1=0.954 → 0.954*164=156.5 -->
+            <rect x="70" y="10"  width="157" height="16" fill="#1565c0" rx="2"/>
+            <text x="67" y="21" text-anchor="end" font-size="8" fill="#333">Log. Reg.</text>
+            <text x="231" y="21" font-size="8" fill="#fff">0.954</text>
+
+            <!-- SVM 0.959 → 157.3 -->
+            <rect x="70" y="31"  width="157" height="16" fill="#6a1b9a" rx="2"/>
+            <text x="67" y="42" text-anchor="end" font-size="8" fill="#333">SVM</text>
+            <text x="231" y="42" font-size="8" fill="#fff">0.959</text>
+
+            <!-- KNN 0.970 → 159.1 -->
+            <rect x="70" y="52"  width="159" height="16" fill="#00695c" rx="2"/>
+            <text x="67" y="63" text-anchor="end" font-size="8" fill="#333">KNN ⭐</text>
+            <text x="233" y="63" font-size="8" fill="#fff">0.970</text>
+
+            <!-- Dec Tree 0.941 → 154.3 -->
+            <rect x="70" y="73"  width="154" height="16" fill="#e65100" rx="2"/>
+            <text x="67" y="84" text-anchor="end" font-size="8" fill="#333">Dec. Tree</text>
+            <text x="228" y="84" font-size="8" fill="#fff">0.941</text>
+
+            <!-- RF 0.972 → 159.4 -->
+            <rect x="70" y="94"  width="159" height="16" fill="#1b5e20" rx="2"/>
+            <text x="67" y="105" text-anchor="end" font-size="8" fill="#333">Rand. Forest ⭐</text>
+            <text x="233" y="105" font-size="8" fill="#fff">0.972</text>
+
+            <!-- XGB 0.958 -->
+            <rect x="70" y="115" width="157" height="16" fill="#b71c1c" rx="2"/>
+            <text x="67" y="126" text-anchor="end" font-size="8" fill="#333">XGBoost</text>
+            <text x="231" y="126" font-size="8" fill="#fff">0.958</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Feature categories -->
+      <div class="card">
+        <div class="card-header">🧬 Feature Engineering Buckets</div>
+        <div class="card-body">
+          <ul class="bullet-list blue">
+            <li><strong>Geospatial</strong>: displacement, path length, tortuosity, bearing</li>
+            <li><strong>Temporal</strong>: duration, start/end month, daily distance</li>
+            <li><strong>Movement</strong>: speed stats, heading consistency, fix rate</li>
+            <li><strong>Sensor</strong>: temperature, battery voltage &amp; depletion rate</li>
+            <li><strong>Altitude</strong>: mean, max, min, range, std</li>
+            <li><strong>Behaviour</strong>: rest stops, movement ratio, long-flight segments</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Future Work -->
+      <div class="card">
+        <div class="card-header slate">🚀 Future Work</div>
+        <div class="card-body">
+          <ul class="bullet-list">
+            <li>Apply deep learning (LSTM) on raw GPS time-series.</li>
+            <li>Collect more tagged egret cohorts for larger minority class.</li>
+            <li>Integrate weather/NDVI data as external covariates.</li>
+            <li>Deploy as real-time web monitoring dashboard.</li>
+            <li>Extend to other migratory species (shorebirds, raptors).</li>
+          </ul>
+        </div>
+      </div>
+
+    </div><!-- /col-right -->
+
+  </div><!-- /body -->
+
+  <!-- ══════════════════════ FOOTER ══════════════════════ -->
+  <div class="footer">
+    Dataset: Audubon Canyon Ranch Egret Telemetry Project &nbsp;|&nbsp;
+    Species: <em>Ardea alba</em> (Great Egret) &nbsp;|&nbsp;
+    Breeding Colony: Bolinas Lagoon, CA (38.03°N, 122.75°W) &nbsp;|&nbsp;
+    Pipeline: telemetry_preprocess.py → telemetry_model_training.py → telemetry_bias_fix.py
+  </div>
+
+</div><!-- /poster -->
+
+</body>
+</html>
