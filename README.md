@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # 🦢 Aves Migration System
 
 ![Live ML Project](https://img.shields.io/badge/Live_ML_Project-Active-success)
@@ -69,7 +68,6 @@ python telemetry_bias_fix.py
 
 ---
 *Developed for the Audubon Canyon Ranch Egret Telemetry Project.*
-=======
 # 🐦 Aves Migration Prediction System
 ### Predicting Bird Migration Success using Machine Learning
 
@@ -241,4 +239,3 @@ Aves_Migration_System/
 - Real-time migration prediction
 - Deploy as web application
 
->>>>>>> 162a4ac3e3c1b4dc83d94fbaccc003db66474b79
