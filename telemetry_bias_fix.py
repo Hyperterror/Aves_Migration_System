@@ -871,6 +871,159 @@ def plot_xgboost_importance(X, y, feature_names):
     print(f"Saved: {path}")
 
 
+def plot_accuracy_line_graph(fold_results):
+    """
+    Line graph of accuracy per CV fold for every model.
+
+    Each model gets its own line, so the reader can see per-fold
+    trend and variance at a glance — complements the bar charts
+    that only show means.
+    """
+    model_names = list(fold_results.keys())
+    # Palette: one colour per model
+    palette = [
+        "#3498db", "#e74c3c", "#2ecc71",
+        "#9b59b6", "#f39c12", "#1abc9c",
+    ]
+
+    fig, ax = plt.subplots(figsize=(11, 6))
+
+    offset_step = 0.04
+    n_models = len(model_names)
+    start_offset = - (n_models - 1) / 2.0 * offset_step
+
+    for i, (color, name) in enumerate(zip(palette, model_names)):
+        folds      = fold_results[name]
+        fold_nums  = [f["fold"] for f in folds]
+        accuracies = [f["accuracy"] for f in folds]
+
+        # Add horizontal jitter to prevent perfectly overlapping lines
+        jittered_folds = [f_num + start_offset + (i * offset_step) for f_num in fold_nums]
+
+        ax.plot(
+            jittered_folds, accuracies,
+            marker="o", linewidth=2.2, markersize=7,
+            label=name, color=color, alpha=0.85
+        )
+        # Annotate last point
+        ax.annotate(
+            f"{accuracies[-1]:.3f}",
+            xy=(jittered_folds[-1], accuracies[-1]),
+            xytext=(8, 0), textcoords="offset points",
+            fontsize=8, color=color, va="center", fontweight="bold"
+        )
+
+    n_folds = max(len(fold_results[m]) for m in model_names)
+    ax.set_xticks(range(1, n_folds + 1))
+    ax.set_xticklabels([f"Fold {i}" for i in range(1, n_folds + 1)], fontsize=11)
+    ax.set_xlabel("Cross-Validation Fold", fontsize=12)
+    ax.set_ylabel("Accuracy", fontsize=12)
+    ax.set_title(
+        "Per-Fold Accuracy — All Models (Bias-Corrected Telemetry Data)",
+        fontsize=14, fontweight="bold",
+    )
+    ax.set_ylim(0.8, 1.05)
+    ax.axhline(0.9, color="gray", linestyle="--", linewidth=1, label="90% reference")
+    ax.legend(loc="lower right", fontsize=9, framealpha=0.85)
+    ax.grid(axis="y", alpha=0.35)
+    ax.grid(axis="x", alpha=0.2)
+
+    plt.tight_layout()
+    path = os.path.join(OUTPUT_DIR, "bias_accuracy_line_graph.png")
+    plt.savefig(path, dpi=150, bbox_inches="tight")
+    plt.close()
+    print(f"Saved: {path}")
+
+
+def plot_data_split_pie(after_df, n_folds):
+    """
+    Dual-panel pie chart that communicates the data composition:
+
+    Left  — Class distribution after bias-correction relabeling
+            (Failed vs Success proportion)
+    Right — Approximate train / test split for one CV fold
+            (one fold kept as test; rest as training — shown as %)
+    """
+    counts   = after_df["Migration_Success"].value_counts().sort_index()
+    n_failed  = int(counts.get(0, 0))
+    n_success = int(counts.get(1, 0))
+    total     = n_failed + n_success
+
+    # Approximate train/test split for one fold
+    test_size  = round(total / n_folds)
+    train_size = total - test_size
+
+    fig, axes = plt.subplots(1, 2, figsize=(13, 6))
+    fig.suptitle(
+        "Data Split Overview — Bias-Corrected Telemetry Dataset",
+        fontsize=14, fontweight="bold", y=1.02,
+    )
+
+    # ---------- Panel 1: Class distribution ----------
+    ax_class = axes[0]
+    class_sizes  = [n_failed, n_success]
+    class_labels = [
+        f"Failed\n({n_failed} events, {n_failed/total*100:.1f}%)",
+        f"Success\n({n_success} events, {n_success/total*100:.1f}%)",
+    ]
+    class_colors = ["#e74c3c", "#2ecc71"]
+    class_explode = (0.05, 0)
+
+    wedges, _, autotexts = ax_class.pie(
+        class_sizes,
+        labels=class_labels,
+        colors=class_colors,
+        explode=class_explode,
+        autopct="%1.1f%%",
+        startangle=140,
+        pctdistance=0.65,
+        wedgeprops=dict(edgecolor="white", linewidth=2),
+    )
+    for at in autotexts:
+        at.set_fontsize(11)
+        at.set_fontweight("bold")
+
+    ax_class.set_title(
+        f"Class Distribution\n(after 60 km strict relabeling, n={total})",
+        fontsize=12, fontweight="bold",
+    )
+
+    # ---------- Panel 2: Train / Test split ----------
+    ax_split = axes[1]
+    split_sizes  = [train_size, test_size]
+    split_labels = [
+        f"Training\n({train_size} samples, {train_size/total*100:.1f}%)",
+        f"Test (1 fold)\n({test_size} samples, {test_size/total*100:.1f}%)",
+    ]
+    split_colors  = ["#3498db", "#f39c12"]
+    split_explode = (0, 0.07)
+
+    wedges2, _, autotexts2 = ax_split.pie(
+        split_sizes,
+        labels=split_labels,
+        colors=split_colors,
+        explode=split_explode,
+        autopct="%1.1f%%",
+        startangle=90,
+        pctdistance=0.65,
+        wedgeprops=dict(edgecolor="white", linewidth=2),
+    )
+    for at in autotexts2:
+        at.set_fontsize(11)
+        at.set_fontweight("bold")
+
+    ax_split.set_title(
+        f"Train / Test Split\n({n_folds}-Fold Stratified CV, one fold shown)",
+        fontsize=12, fontweight="bold",
+    )
+
+    plt.tight_layout()
+    path = os.path.join(OUTPUT_DIR, "bias_data_split_pie.png")
+    plt.savefig(path, dpi=150, bbox_inches="tight")
+    plt.close()
+    print(f"Saved: {path}")
+
+
 # ================================================================
 # STEP 9 — SAVE REPORTS
 # ================================================================
@@ -1079,6 +1232,8 @@ def main():
     feature_names = list(X.columns)
     plot_feature_importance(X, y, sample_weights, feature_names)
     plot_xgboost_importance(X, y, feature_names)
+    plot_accuracy_line_graph(fold_results)
+    plot_data_split_pie(after_df, N_FOLDS)
 
     # ---- Save reports ----
     save_per_fold_csv(fold_results, summary_df)
